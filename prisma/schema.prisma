@@ -1,0 +1,90 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model SystemFunction {
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @unique
+  description            String?
+  requiredMaturityLevels RequiredMaturityLevel[]
+  rules                  Rule[]
+}
+
+model Model {
+  id           Int           @id @default(autoincrement())
+  name         String        @unique
+  description  String?
+  dataElemente DataElement[]
+}
+
+model DataElement {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  card        String
+  description String?
+  model       Model   @relation(fields: [modelId], references: [id])
+  modelId     Int
+}
+
+model Role {
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @unique
+  description            String?
+  requiredMaturityLevels RequiredMaturityLevel[]
+  rules                  Rule[]
+}
+
+model DataOperation {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+  Rule        Rule[]
+}
+
+enum Conformity {
+  SHALL
+  SHOULD
+  MAY
+}
+
+model MaturityLevel {
+  id                     Int                     @id @default(autoincrement())
+  name                   String                  @unique
+  description            String?
+  requiredMaturityLevels RequiredMaturityLevel[]
+  Rule                   Rule[]
+}
+
+model RequiredMaturityLevel {
+  id               Int            @id @default(autoincrement())
+  systemFunction   SystemFunction @relation(fields: [systemFunctionId], references: [id])
+  role             Role           @relation(fields: [roleId], references: [id])
+  maturityLevel    MaturityLevel  @relation(fields: [maturityLevelId], references: [id])
+  systemFunctionId Int
+  roleId           Int
+  maturityLevelId  Int
+}
+
+model Rule {
+  id               Int            @id @default(autoincrement())
+  systemFunction   SystemFunction @relation(fields: [systemFunctionId], references: [id])
+  role             Role           @relation(fields: [roleId], references: [id])
+  dataOperation    DataOperation  @relation(fields: [dataOperationId], references: [id])
+  conformity       Conformity
+  maturityLevel    MaturityLevel  @relation(fields: [maturityLevelId], references: [id])
+  systemFunctionId Int
+  roleId           Int
+  dataOperationId  Int
+  maturityLevelId  Int
+}
