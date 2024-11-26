@@ -2,6 +2,15 @@
 CREATE TYPE "Conformity" AS ENUM ('SHALL', 'SHOULD', 'MAY');
 
 -- CreateTable
+CREATE TABLE "SystemFunction" (
+    "id" SERIAL NOT NULL,
+    "name" TEXT NOT NULL,
+    "description" TEXT,
+
+    CONSTRAINT "SystemFunction_pkey" PRIMARY KEY ("id")
+);
+
+-- CreateTable
 CREATE TABLE "Model" (
     "id" SERIAL NOT NULL,
     "name" TEXT NOT NULL,
@@ -66,9 +75,13 @@ CREATE TABLE "Rule" (
     "roleId" INTEGER NOT NULL,
     "dataOperationId" INTEGER NOT NULL,
     "maturityLevelId" INTEGER NOT NULL,
+    "dataElementId" INTEGER NOT NULL,
 
     CONSTRAINT "Rule_pkey" PRIMARY KEY ("id")
 );
+
+-- CreateIndex
+CREATE UNIQUE INDEX "SystemFunction_name_key" ON "SystemFunction"("name");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Model_name_key" ON "Model"("name");
@@ -86,7 +99,7 @@ CREATE UNIQUE INDEX "DataOperation_name_key" ON "DataOperation"("name");
 CREATE UNIQUE INDEX "MaturityLevel_name_key" ON "MaturityLevel"("name");
 
 -- AddForeignKey
-ALTER TABLE "DataElement" ADD CONSTRAINT "DataElement_modelId_fkey" FOREIGN KEY ("modelId") REFERENCES "Model"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "DataElement" ADD CONSTRAINT "DataElement_modelId_fkey" FOREIGN KEY ("modelId") REFERENCES "Model"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "RequiredMaturityLevel" ADD CONSTRAINT "RequiredMaturityLevel_systemFunctionId_fkey" FOREIGN KEY ("systemFunctionId") REFERENCES "SystemFunction"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
@@ -102,6 +115,9 @@ ALTER TABLE "Rule" ADD CONSTRAINT "Rule_systemFunctionId_fkey" FOREIGN KEY ("sys
 
 -- AddForeignKey
 ALTER TABLE "Rule" ADD CONSTRAINT "Rule_roleId_fkey" FOREIGN KEY ("roleId") REFERENCES "Role"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Rule" ADD CONSTRAINT "Rule_dataElementId_fkey" FOREIGN KEY ("dataElementId") REFERENCES "DataElement"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Rule" ADD CONSTRAINT "Rule_dataOperationId_fkey" FOREIGN KEY ("dataOperationId") REFERENCES "DataOperation"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
